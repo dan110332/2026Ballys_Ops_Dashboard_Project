@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bally's Chicago — Operations Command Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #B8860B;
+  --gold-light: #D4A017;
+  --gold-pale: #F5ECD0;
+  --gold-bg: #FDF8EE;
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F9F7F3;
+  --surface3: #F0EDE6;
+  --border: #E2DBD0;
+  --border-dark: #C8BEAF;
+  --text: #1C1813;
+  --text-muted: #6B6258;
+  --text-dim: #A09890;
+  --red: #C0392B;
+  --red-bg: #FEF5F4;
+  --red-border: #F5C6C2;
+  --green: #1A7A4A;
+  --green-bg: #F0FAF4;
+  --green-border: #B3E2C8;
+  --blue: #1A5C8A;
+  --blue-bg: #EFF6FB;
+  --blue-border: #B3D3E8;
+  --purple: #5B3F8A;
+  --purple-bg: #F5F0FA;
+  --amber: #C47100;
+  --amber-bg: #FDF4E7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* TOPBAR */
+.topbar{background:var(--text);border-bottom:1px solid rgba(255,255,255,.08);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.logo-wrap{display:flex;align-items:center;gap:14px;}
+.logo-diamond{width:32px;height:32px;background:linear-gradient(135deg,var(--gold-light),var(--gold));clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);flex-shrink:0;}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--gold-light);letter-spacing:.08em;line-height:1;}
+.logo-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.2em;text-transform:uppercase;margin-top:3px;}
+.topbar-divider{width:1px;height:32px;background:rgba(255,255,255,.12);margin:0 20px;}
+.top-nav{display:flex;height:58px;}
+.top-tab{padding:0 16px;height:58px;display:flex;align-items:center;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.06em;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;white-space:nowrap;user-select:none;}
+.top-tab:hover{color:rgba(255,255,255,.85);}
+.top-tab.active{color:var(--gold-light);border-bottom-color:var(--gold-light);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(26,122,74,.2);border:1px solid rgba(26,122,74,.4);border-radius:20px;padding:4px 11px;font-size:11px;color:#52C788;font-weight:600;letter-spacing:.05em;}
+.live-dot{width:6px;height:6px;background:#52C788;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(82,199,136,.5);}50%{opacity:.7;box-shadow:0 0 0 4px rgba(82,199,136,0);}}
+.time-display{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.45);}
+.avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1C1813;letter-spacing:.05em;}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 58px);}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;box-shadow:var(--shadow-sm);}
+.sidebar-section{margin-bottom:24px;}
+.sidebar-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-dim);padding:0 18px;margin-bottom:6px;font-weight:700;}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:12.5px;color:var(--text-muted);cursor:pointer;transition:all .15s;position:relative;border-left:2px solid transparent;}
+.sidebar-item:hover{color:var(--text);background:var(--surface3);}
+.sidebar-item.active{color:var(--gold);background:var(--gold-bg);border-left-color:var(--gold);}
+.sidebar-badge{margin-left:auto;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:10px;padding:1px 7px;font-size:9.5px;font-weight:700;}
+.sidebar-badge.gold{background:var(--gold-bg);color:var(--gold);border-color:rgba(184,134,11,.3);}
+
+/* MAIN */
+.main{flex:1;padding:28px 32px;overflow-x:hidden;background:var(--bg);}
+
+/* PAGE SECTIONS */
+.page-section{display:none;animation:fadeUp .3s ease both;}
+.page-section.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.breadcrumb{font-size:10.5px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.1;}
+.page-title em{color:var(--gold);font-style:italic;}
+.page-subtitle{font-size:12.5px;color:var(--text-muted);}
+
+/* KPI ROW */
+.kpi-row{display:grid;gap:14px;margin-bottom:24px;}
+.kpi-row.cols-5{grid-template-columns:repeat(5,1fr);}
+.kpi-row.cols-4{grid-template-columns:repeat(4,1fr);}
+.kpi-row.cols-3{grid-template-columns:repeat(3,1fr);}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow .2s,transform .15s;}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.gold::before{background:linear-gradient(90deg,var(--gold-light),var(--gold-pale));}
+.kpi-card.green::before{background:linear-gradient(90deg,var(--green),#A8DFC0);}
+.kpi-card.blue::before{background:linear-gradient(90deg,var(--blue),#90C4E0);}
+.kpi-card.red::before{background:linear-gradient(90deg,var(--red),#F5C6C2);}
+.kpi-card.purple::before{background:linear-gradient(90deg,var(--purple),#C5AEE8);}
+.kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),#F5D4A0);}
+.kpi-label{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:9px;font-weight:700;}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--text);line-height:1;margin-bottom:6px;}
+.kpi-delta{font-size:11px;display:flex;align-items:center;gap:3px;font-weight:500;}
+.kpi-delta.up{color:var(--green);}
+.kpi-delta.down{color:var(--red);}
+.kpi-delta.neutral{color:var(--text-dim);}
+
+/* CONTENT GRID */
+.content-grid{display:grid;gap:18px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:1fr 1fr 1fr;}
+.grid-main-side{grid-template-columns:1fr 330px;}
+.grid-main-wide{grid-template-columns:1.4fr 1fr;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow .2s;}
+.card:hover{box-shadow:var(--shadow-md);}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:7px;}
+.card-action{font-size:11px;color:var(--gold);cursor:pointer;font-weight:600;padding:4px 11px;border:1px solid rgba(184,134,11,.3);border-radius:6px;background:var(--gold-bg);transition:all .15s;}
+.card-action:hover{background:var(--gold-pale);border-color:var(--gold);}
+.card-body{padding:18px 20px;}
+
+/* TABLES */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);padding:0 0 11px;font-weight:700;border-bottom:1px solid var(--border);}
+.data-table td{padding:11px 0;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover td{background:var(--surface3);}
+.td-name{font-weight:600;color:var(--text);}
+.td-sub{font-size:10.5px;color:var(--text-dim);margin-top:1px;}
+.mono{font-family:'DM Mono',monospace;font-size:12px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em;}
+.pill.open{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.pill.busy{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(196,113,0,.25);}
+.pill.closed{background:var(--surface3);color:var(--text-dim);border:1px solid var(--border);}
+.pill.warn{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.pill.info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.pill.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.pill.pending{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(91,63,138,.2);}
+
+/* PROGRESS */
+.prog-bar{width:90px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.prog-fill.green{background:var(--green);}
+.prog-fill.red{background:var(--red);}
+.prog-fill.blue{background:var(--blue);}
+.prog-fill.amber{background:var(--amber);}
+
+/* BAR CHART */
+.bar-chart-wrap{padding:14px 18px 18px;}
+.chart-legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+.legend-dot{width:8px;height:8px;border-radius:2px;}
+.bar-chart{display:flex;align-items:flex-end;gap:7px;height:140px;padding-bottom:26px;position:relative;border-bottom:1px solid var(--border);}
+.bar-group{flex:1;display:flex;align-items:flex-end;gap:2px;position:relative;}
+.bar{flex:1;border-radius:3px 3px 0 0;cursor:pointer;transition:opacity .2s,filter .2s;}
+.bar:hover{opacity:.8;filter:brightness(.9);}
+.bar-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--text-dim);white-space:nowrap;letter-spacing:.05em;}
+.chart-grid{position:absolute;inset:0 0 26px 0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;}
+.chart-line{border-top:1px dashed var(--border);}
+
+/* ALERT FEED */
+.alert-list{display:flex;flex-direction:column;}
+.alert-item{display:flex;gap:11px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.alert-item:hover{background:var(--surface2);}
+.alert-item:last-child{border-bottom:none;}
+.alert-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:1px solid var(--border);}
+.alert-text{font-size:12.5px;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.alert-meta{font-size:10.5px;color:var(--text-dim);display:flex;align-items:center;gap:5px;}
+
+/* DEPT ROWS */
+.dept-list{padding:14px 20px;}
+.dept-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.dept-row:last-child{border-bottom:none;}
+.dept-name{font-size:12.5px;color:var(--text);flex:1;}
+.dept-bar{flex:0 0 70px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;border:1px solid var(--border);}
+.dept-fill{height:100%;border-radius:2px;}
+.dept-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);width:52px;text-align:right;}
+
+/* INTEGRATION GRID */
+.int-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 18px;}
+.int-tile{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:all .15s;}
+.int-tile:hover{border-color:var(--border-dark);box-shadow:var(--shadow-sm);}
+.int-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:1px solid var(--border);}
+.int-name{font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.int-status{font-size:10px;color:var(--green);font-weight:600;}
+.int-status.warn{color:var(--amber);}
+
+/* ANNOUNCEMENT */
+.ann-banner{background:linear-gradient(135deg,var(--gold-bg),var(--gold-pale));border:1px solid rgba(184,134,11,.3);border-radius:12px;padding:16px 20px;margin-bottom:22px;display:flex;align-items:flex-start;gap:14px;box-shadow:var(--shadow-sm);}
+.ann-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.ann-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:3px;}
+.ann-body{font-size:12px;color:var(--text-muted);line-height:1.55;}
+
+/* COMPLIANCE */
+.comp-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.comp-row:last-child{border-bottom:none;}
+.comp-name{font-size:12.5px;color:var(--text);flex:1;}
+.comp-bar{flex:0 0 110px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.comp-fill{height:100%;border-radius:3px;}
+.comp-fill.ok{background:var(--green);}
+.comp-fill.warn{background:var(--amber);}
+.comp-fill.crit{background:var(--red);}
+.comp-fill.blue{background:var(--blue);}
+.comp-fill.purple{background:var(--purple);}
+.comp-pct{font-family:'DM Mono',monospace;font-size:11px;width:36px;text-align:right;font-weight:600;}
+
+/* QUICK LINKS */
+.ql-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 18px;}
+.ql-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;}
+.ql-item:hover{border-color:rgba(184,134,11,.4);background:var(--gold-bg);box-shadow:var(--shadow-sm);}
+.ql-icon{font-size:15px;}
+.ql-text{font-size:12px;font-weight:600;color:var(--text);}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--border);background:var(--surface);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-dim);}
+.footer strong{color:var(--gold);font-weight:600;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--surface3);}
+::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+
+/* TAG */
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.04em;}
+
+/* STAT STRIP */
+.stat-strip{display:grid;background:var(--border);gap:1px;}
+.stat-box{background:var(--surface);padding:14px 16px;text-align:center;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.stat-lbl{font-size:9.5px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;}
+
+/* DIVIDER */
+.section-gap{margin-bottom:18px;}
+
+/* TIMELINE */
+.timeline{padding:14px 20px;}
+.tl-item{display:flex;gap:14px;padding-bottom:18px;position:relative;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:14px;top:30px;bottom:0;width:1px;background:var(--border);}
+.tl-item:last-child::before{display:none;}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:2px solid;}
+.tl-dot.gold{background:var(--gold-bg);border-color:var(--gold);color:var(--gold);}
+.tl-dot.green{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.tl-dot.blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue);}
+.tl-dot.red{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.tl-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.tl-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
+.tl-time{font-size:10px;color:var(--text-dim);margin-top:3px;}
+
+/* AUDIT ROWS */
+.audit-item{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);font-size:12px;}
+.audit-item:last-child{border-bottom:none;}
+.audit-time{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-dim);width:60px;flex-shrink:0;}
+.audit-action{flex:1;color:var(--text);}
+.audit-user{font-size:11px;color:var(--text-muted);}
+
+/* EVENT TABLE */
+.event-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--border);}
+.event-row:last-child{border-bottom:none;}
+.event-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);width:48px;flex-shrink:0;font-weight:600;}
+.event-name{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.event-type{font-size:11px;color:var(--text-dim);}
+.event-rev{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);font-weight:600;}
+
+/* AML */
+.aml-row{display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);}
+.aml-row:last-child{border-bottom:none;}
+.aml-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);width:68px;flex-shrink:0;}
+.aml-detail{flex:1;font-size:12.5px;color:var(--text);}
+.aml-amount{font-family:'DM Mono',monospace;font-size:12px;color:var(--amber);font-weight:600;}
+
+/* CHECKLIST */
+.checklist{padding:12px 20px;}
+.check-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:11px;}
+.check-box.checked{background:var(--green);border-color:var(--green);color:white;}
+.check-label{font-size:12.5px;flex:1;color:var(--text);}
+.check-label.checked{color:var(--text-dim);text-decoration:line-through;}
+.check-owner{font-size:11px;color:var(--text-dim);}
+
+.full-width{grid-column:1/-1;}
+
+/* Section header divider */
+.section-header{display:flex;align-items:center;gap:14px;margin:22px 0 14px;}
+.section-header-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);font-weight:700;white-space:nowrap;}
+.section-header-line{flex:1;height:1px;background:var(--border);}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="logo-wrap">
+    <div class="logo-diamond"></div>
+    <div>
+      <div class="logo-text">BALLY'S CHICAGO</div>
+      <div class="logo-sub">Operations Command Hub</div>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="top-nav" id="topNav">
+      <div class="top-tab active" data-tab="dashboard">Dashboard</div>
+      <div class="top-tab" data-tab="operations">F&amp;B Operations</div>
+      <div class="top-tab" data-tab="gaming">Gaming Floor</div>
+      <div class="top-tab" data-tab="people">HR &amp; Workforce</div>
+      <div class="top-tab" data-tab="finance">Finance</div>
+      <div class="top-tab" data-tab="compliance">Compliance</div>
+      <div class="top-tab" data-tab="events">Events</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="time-display" id="clock">--:-- --</div>
+    <div class="avatar">DD</div>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar" id="sidebar"></aside>
+
+<main class="main">
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div class="page-section active" id="sec-dashboard">
+  <div class="page-header">
+    <div class="breadcrumb">Home <span>›</span> Command Center</div>
+    <h1 class="page-title">Good Evening, <em>Vice President.</em></h1>
+    <p class="page-subtitle">Thursday, April 2, 2026 &nbsp;·&nbsp; All systems operational &nbsp;·&nbsp; Last sync 2 min ago</p>
+  </div>
+
+  <div class="ann-banner">
+    <div class="ann-icon">🏗</div>
+    <div>
+      <div class="ann-title">Casino Ops Central — Live Since Q1 2026 · Designed by Daniel Dantes, VP Operations</div>
+      <div class="ann-body">Unified platform integrating Everi gaming analytics, F&amp;B (5 outlets), workforce via Kronos, OpenTable, Yellow Dog inventory, and ILGC compliance — purpose-built for Bally's Chicago's first full operating quarter.</div>
+    </div>
+  </div>
+
+  <div class="kpi-row cols-5">
+    <div class="kpi-card gold"><div class="kpi-label">Total Daily Revenue</div><div class="kpi-value">$612K</div><div class="kpi-delta up">↑ 8.4% vs last Thu</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Gaming Win</div><div class="kpi-value">$441K</div><div class="kpi-delta up">↑ 11.2%</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">F&amp;B Revenue</div><div class="kpi-value">$87K</div><div class="kpi-delta up">↑ 4.6%</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Labor Cost %</div><div class="kpi-value">28.3%</div><div class="kpi-delta up">↓ 1.1 pts · Target 29%</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Guest Sat. Score</div><div class="kpi-value">4.71</div><div class="kpi-delta up">↑ from 4.58 last wk</div></div>
+  </div>
+
+  <div class="content-grid grid-main-side">
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📈 Weekly Revenue — All Divisions</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+              <button onclick="setChartMode('line')" id="btn-line" style="padding:4px 10px;font-size:10.5px;font-weight:600;border:none;cursor:pointer;background:var(--gold);color:white;transition:all .15s;" class="chart-mode-btn active-btn">Line</button>
+              <button onclick="setChartMode('area')" id="btn-area" style="padding:4px 10px;font-size:10.5px;font-weight:600;border:none;cursor:pointer;background:var(--surface2);color:var(--text-muted);transition:all .15s;" class="chart-mode-btn">Area</button>
+              <button onclick="setChartMode('bar')" id="btn-bar" style="padding:4px 10px;font-size:10.5px;font-weight:600;border:none;cursor:pointer;background:var(--surface2);color:var(--text-muted);transition:all .15s;" class="chart-mode-btn">Bar</button>
+            </div>
+            <div class="card-action">Power BI →</div>
+          </div>
+        </div>
+        <div style="padding:16px 20px 10px;">
+          <!-- Legend -->
+          <div style="display:flex;gap:20px;margin-bottom:12px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-muted);">
+              <div style="width:22px;height:3px;background:#B8860B;border-radius:2px;"></div>Gaming
+              <span style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--gold);font-weight:600;">$441K today</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-muted);">
+              <div style="width:22px;height:3px;background:#1A5C8A;border-radius:2px;"></div>F&amp;B
+              <span style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--blue);font-weight:600;">$87K today</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-muted);">
+              <div style="width:22px;height:3px;background:#5B3F8A;border-radius:2px;"></div>Hotel/Other
+              <span style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--purple);font-weight:600;">$84K today</span>
+            </div>
+            <div style="margin-left:auto;font-size:11px;color:var(--text-dim);padding:2px 8px;background:var(--gold-bg);border:1px solid rgba(184,134,11,.2);border-radius:4px;">
+              Fri–Sun = projected
+            </div>
+          </div>
+          <!-- SVG Chart -->
+          <div style="position:relative;">
+            <svg id="revenueChart" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:200px;overflow:visible;">
+              <defs>
+                <linearGradient id="gradGold" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#B8860B" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#B8860B" stop-opacity="0.01"/>
+                </linearGradient>
+                <linearGradient id="gradBlue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1A5C8A" stop-opacity="0.14"/>
+                  <stop offset="100%" stop-color="#1A5C8A" stop-opacity="0.01"/>
+                </linearGradient>
+                <linearGradient id="gradPurple" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#5B3F8A" stop-opacity="0.12"/>
+                  <stop offset="100%" stop-color="#5B3F8A" stop-opacity="0.01"/>
+                </linearGradient>
+                <!-- Tooltip clip -->
+                <clipPath id="chartClip">
+                  <rect x="0" y="0" width="700" height="190"/>
+                </clipPath>
+              </defs>
+
+              <!-- Y-axis gridlines & labels -->
+              <line x1="48" y1="10" x2="700" y2="10" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="42" y="14" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$500K</text>
+              <line x1="48" y1="47" x2="700" y2="47" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="42" y="51" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$400K</text>
+              <line x1="48" y1="84" x2="700" y2="84" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="42" y="88" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$300K</text>
+              <line x1="48" y1="121" x2="700" y2="121" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="42" y="125" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$200K</text>
+              <line x1="48" y1="158" x2="700" y2="158" stroke="#E2DBD0" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="42" y="162" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$100K</text>
+              <line x1="48" y1="190" x2="700" y2="190" stroke="#C8BEAF" stroke-width="1.5"/>
+              <text x="42" y="193" text-anchor="end" font-size="9" fill="#A09890" font-family="DM Mono">$0</text>
+
+              <!-- X points: Mon=138, Tue=232, Wed=326, Thu=420, Fri=514, Sat=608, Sun=700 -->
+              <!-- Gaming data (max 500K = y10, scale factor: 180/500000 = 0.00036) -->
+              <!-- Mon:$396K→y=190-190*396/500=190-150=40, Tue:$428K→y=190-154=36 -->
+              <!-- Wed:$456K→y=190-164=26, Thu:$441K→y=190-158=32 -->
+              <!-- Fri:$510K proj→y=190-183=7, Sat:$588K proj→y=190-211<0 cap10, Sun:$502K proj→y=190-181=9 -->
+
+              <!-- AREA FILLS (shown in area mode) -->
+              <g id="areaGroup" clip-path="url(#chartClip)">
+                <!-- Gaming area -->
+                <path id="goldArea" d="M138,46 C185,42 232,36 279,28 C302,24 326,22 373,24 C396,25 420,26 467,18 C490,14 514,10 561,12 C584,11 608,10 655,14 L700,16 L700,190 L48,190 Z" 
+                  fill="url(#gradGold)" opacity="0"/>
+                <!-- F&B area -->
+                <path id="blueArea" d="M138,148 C185,145 232,140 279,136 C302,134 326,132 373,128 C396,126 420,122 467,114 C490,110 514,106 561,108 C584,107 608,104 655,108 L700,110 L700,190 L48,190 Z"
+                  fill="url(#gradBlue)" opacity="0"/>
+                <!-- Hotel area -->
+                <path id="purpleArea" d="M138,172 C185,170 232,168 279,165 C302,163 326,162 373,160 C396,159 420,156 467,150 C490,147 514,144 561,146 C584,145 608,143 655,145 L700,144 L700,190 L48,190 Z"
+                  fill="url(#gradPurple)" opacity="0"/>
+              </g>
+
+              <!-- BAR GROUP (shown in bar mode) -->
+              <g id="barGroup" opacity="0">
+                <!-- Mon -->
+                <rect x="110" y="46" width="16" height="144" fill="#B8860B" opacity=".7" rx="2"/>
+                <rect x="128" y="148" width="16" height="42" fill="#1A5C8A" opacity=".7" rx="2"/>
+                <rect x="146" y="172" width="16" height="18" fill="#5B3F8A" opacity=".7" rx="2"/>
+                <!-- Tue -->
+                <rect x="204" y="36" width="16" height="154" fill="#B8860B" opacity=".75" rx="2"/>
+                <rect x="222" y="140" width="16" height="50" fill="#1A5C8A" opacity=".75" rx="2"/>
+                <rect x="240" y="168" width="16" height="22" fill="#5B3F8A" opacity=".75" rx="2"/>
+                <!-- Wed -->
+                <rect x="298" y="22" width="16" height="168" fill="#B8860B" opacity=".8" rx="2"/>
+                <rect x="316" y="132" width="16" height="58" fill="#1A5C8A" opacity=".8" rx="2"/>
+                <rect x="334" y="162" width="16" height="28" fill="#5B3F8A" opacity=".8" rx="2"/>
+                <!-- Thu TODAY -->
+                <rect x="392" y="26" width="16" height="164" fill="#B8860B" rx="2"/>
+                <rect x="410" y="122" width="16" height="68" fill="#1A5C8A" rx="2"/>
+                <rect x="428" y="156" width="16" height="34" fill="#5B3F8A" rx="2"/>
+                <!-- Fri proj -->
+                <rect x="486" y="10" width="16" height="180" fill="#B8860B" opacity=".25" rx="2" stroke="#B8860B" stroke-width="1" stroke-dasharray="3,2"/>
+                <rect x="504" y="106" width="16" height="84" fill="#1A5C8A" opacity=".2" rx="2" stroke="#1A5C8A" stroke-width="1" stroke-dasharray="3,2"/>
+                <rect x="522" y="144" width="16" height="46" fill="#5B3F8A" opacity=".18" rx="2" stroke="#5B3F8A" stroke-width="1" stroke-dasharray="3,2"/>
+                <!-- Sat proj -->
+                <rect x="580" y="10" width="16" height="180" fill="#B8860B" opacity=".2" rx="2" stroke="#B8860B" stroke-width="1" stroke-dasharray="3,2"/>
+                <rect x="598" y="104" width="16" height="86" fill="#1A5C8A" opacity=".16" rx="2" stroke="#1A5C8A" stroke-width="1" stroke-dasharray="3,2"/>
+                <rect x="616" y="143" width="16" height="47" fill="#5B3F8A" opacity=".14" rx="2" stroke="#5B3F8A" stroke-width="1" stroke-dasharray="3,2"/>
+                <!-- Sun proj -->
+                <rect x="668" y="14" width="16" height="176" fill="#B8860B" opacity=".18" rx="2" stroke="#B8860B" stroke-width="1" stroke-dasharray="3,2"/>
+                <rect x="686" y="108" width="16" height="82" fill="#1A5C8A" opacity=".14" rx="2" stroke="#1A5C8A" stroke-width="1" stroke-dasharray="3,2"/>
+              </g>
+
+              <!-- LINE PATHS -->
+              <!-- Gaming line -->
+              <path id="goldLine" d="M138,46 C185,42 232,36 279,28 C302,24 326,22 373,24 C396,25 420,26 467,18 C490,14 514,10 561,12 C584,11 608,10 655,14 L700,16"
+                fill="none" stroke="#B8860B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Projected dashes for gaming -->
+              <path d="M420,26 C467,18 514,10 561,12 C608,10 655,14 700,16"
+                fill="none" stroke="#B8860B" stroke-width="2" stroke-dasharray="5,3" opacity=".45"/>
+
+              <!-- F&B line -->
+              <path id="blueLine" d="M138,148 C185,145 232,140 279,136 C302,134 326,132 373,128 C396,126 420,122 467,114"
+                fill="none" stroke="#1A5C8A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <path d="M420,122 C467,114 514,106 561,108 C608,104 655,108 700,110"
+                fill="none" stroke="#1A5C8A" stroke-width="2" stroke-dasharray="5,3" opacity=".45"/>
+
+              <!-- Hotel line -->
+              <path id="purpleLine" d="M138,172 C185,170 232,168 279,165 C302,163 326,162 373,160 C396,159 420,156 467,150"
+                fill="none" stroke="#5B3F8A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              <path d="M420,156 C467,150 514,144 561,146 C608,143 655,145 700,144"
+                fill="none" stroke="#5B3F8A" stroke-width="2" stroke-dasharray="5,3" opacity=".4"/>
+
+              <!-- TODAY vertical marker -->
+              <line x1="420" y1="10" x2="420" y2="190" stroke="#B8860B" stroke-width="1.5" stroke-dasharray="4,3" opacity=".5"/>
+              <rect x="400" y="0" width="40" height="14" rx="3" fill="#B8860B"/>
+              <text x="420" y="10" text-anchor="middle" font-size="8.5" fill="white" font-family="DM Sans" font-weight="700">TODAY</text>
+
+              <!-- Data points — Gaming -->
+              <circle cx="138" cy="46" r="4" fill="white" stroke="#B8860B" stroke-width="2.5"/>
+              <circle cx="232" cy="36" r="4" fill="white" stroke="#B8860B" stroke-width="2.5"/>
+              <circle cx="326" cy="22" r="4" fill="white" stroke="#B8860B" stroke-width="2.5"/>
+              <circle cx="420" cy="26" r="5" fill="#B8860B" stroke="white" stroke-width="2.5"/>
+              <!-- F&B data points -->
+              <circle cx="138" cy="148" r="4" fill="white" stroke="#1A5C8A" stroke-width="2"/>
+              <circle cx="232" cy="140" r="4" fill="white" stroke="#1A5C8A" stroke-width="2"/>
+              <circle cx="326" cy="132" r="4" fill="white" stroke="#1A5C8A" stroke-width="2"/>
+              <circle cx="420" cy="122" r="5" fill="#1A5C8A" stroke="white" stroke-width="2"/>
+              <!-- Hotel data points -->
+              <circle cx="138" cy="172" r="3.5" fill="white" stroke="#5B3F8A" stroke-width="2"/>
+              <circle cx="232" cy="168" r="3.5" fill="white" stroke="#5B3F8A" stroke-width="2"/>
+              <circle cx="326" cy="162" r="3.5" fill="white" stroke="#5B3F8A" stroke-width="2"/>
+              <circle cx="420" cy="156" r="4.5" fill="#5B3F8A" stroke="white" stroke-width="2"/>
+
+              <!-- Value callouts at TODAY -->
+              <rect x="428" y="16" width="56" height="15" rx="3" fill="white" stroke="#E2DBD0" stroke-width="1"/>
+              <text x="456" y="27" text-anchor="middle" font-size="9.5" fill="#B8860B" font-family="DM Mono" font-weight="700">$441K</text>
+              <rect x="428" y="112" width="56" height="15" rx="3" fill="white" stroke="#E2DBD0" stroke-width="1"/>
+              <text x="456" y="123" text-anchor="middle" font-size="9.5" fill="#1A5C8A" font-family="DM Mono" font-weight="700">$87K</text>
+              <rect x="428" y="146" width="56" height="15" rx="3" fill="white" stroke="#E2DBD0" stroke-width="1"/>
+              <text x="456" y="157" text-anchor="middle" font-size="9.5" fill="#5B3F8A" font-family="DM Mono" font-weight="700">$84K</text>
+
+              <!-- X axis labels -->
+              <text x="138" y="205" text-anchor="middle" font-size="9.5" fill="#A09890" font-family="DM Sans">MON</text>
+              <text x="232" y="205" text-anchor="middle" font-size="9.5" fill="#A09890" font-family="DM Sans">TUE</text>
+              <text x="326" y="205" text-anchor="middle" font-size="9.5" fill="#A09890" font-family="DM Sans">WED</text>
+              <text x="420" y="205" text-anchor="middle" font-size="9.5" fill="#B8860B" font-family="DM Sans" font-weight="700">THU</text>
+              <text x="514" y="205" text-anchor="middle" font-size="9.5" fill="#C8BEAF" font-family="DM Sans">FRI</text>
+              <text x="608" y="205" text-anchor="middle" font-size="9.5" fill="#C8BEAF" font-family="DM Sans">SAT</text>
+              <text x="700" y="205" text-anchor="middle" font-size="9.5" fill="#C8BEAF" font-family="DM Sans">SUN</text>
+            </svg>
+          </div>
+          <!-- Summary strip below chart -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:8px;overflow:hidden;margin-top:16px;">
+            <div style="background:var(--surface2);padding:10px 14px;text-align:center;">
+              <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">Week-to-Date</div>
+              <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--text);">$1.84M</div>
+              <div style="font-size:10.5px;color:var(--green);">↑ 7.2% vs LW</div>
+            </div>
+            <div style="background:var(--surface2);padding:10px 14px;text-align:center;">
+              <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">WTD Gaming</div>
+              <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--gold);">$1.32M</div>
+              <div style="font-size:10.5px;color:var(--green);">↑ 9.1%</div>
+            </div>
+            <div style="background:var(--surface2);padding:10px 14px;text-align:center;">
+              <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">WTD F&amp;B</div>
+              <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--blue);">$263K</div>
+              <div style="font-size:10.5px;color:var(--green);">↑ 4.6%</div>
+            </div>
+            <div style="background:var(--surface2);padding:10px 14px;text-align:center;">
+              <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">Weekend Proj.</div>
+              <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--purple);">$2.6M</div>
+              <div style="font-size:10.5px;color:var(--text-dim);">Full week est.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🍽 F&amp;B Outlet Status — Live</div>
+          <div class="card-action" onclick="switchTab('operations')">Full View →</div>
+        </div>
+        <div class="card-body" style="padding:12px 18px;">
+          <table class="data-table">
+            <thead><tr><th>Outlet</th><th>Status</th><th>Revenue</th><th>vs Target</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-name">Stack'd Steakhouse</div><div class="td-sub">Fine Dining · F3</div></td><td><div class="pill busy">⚡ Peak</div></td><td class="mono">$22,400</td><td><div class="prog-bar"><div class="prog-fill" style="width:94%"></div></div></td></tr>
+              <tr><td><div class="td-name">The Pit Bar &amp; Grill</div><div class="td-sub">Casino Floor · F1</div></td><td><div class="pill open">● Open</div></td><td class="mono">$31,200</td><td><div class="prog-bar"><div class="prog-fill green" style="width:100%"></div></div></td></tr>
+              <tr><td><div class="td-name">High Roller Lounge</div><div class="td-sub">VIP Level · F4</div></td><td><div class="pill busy">⚡ Peak</div></td><td class="mono">$18,600</td><td><div class="prog-bar"><div class="prog-fill" style="width:97%"></div></div></td></tr>
+              <tr><td><div class="td-name">Marketplace Buffet</div><div class="td-sub">Main Concourse</div></td><td><div class="pill open">● Open</div></td><td class="mono">$11,900</td><td><div class="prog-bar"><div class="prog-fill amber" style="width:79%"></div></div></td></tr>
+              <tr><td><div class="td-name">Casino Café</div><div class="td-sub">Lobby · 24hr</div></td><td><div class="pill open">● Open</div></td><td class="mono">$2,900</td><td><div class="prog-bar"><div class="prog-fill" style="width:88%"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔔 Ops Alert Feed</div><div class="card-action">All</div></div>
+        <div class="alert-list">
+          <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">VIP comp threshold exceeded by $4,200</div><div class="alert-meta">High Roller · 14 min ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--amber-bg)">⚡</div><div><div class="alert-text">Stack'd approaching full capacity (187/200)</div><div class="alert-meta">F3 · 28 min ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--blue-bg)">📦</div><div><div class="alert-text">Liquor par alert — Patrón Silver &amp; Veuve</div><div class="alert-meta">Beverage · 1 hr ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--green-bg)">✅</div><div><div class="alert-text">Revenue pace on track — 82% of nightly goal at 7PM</div><div class="alert-meta">Finance · 2 hr ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--surface3)">👤</div><div><div class="alert-text">3 call-outs gaming floor — coverage redeployed</div><div class="alert-meta">HR · 3 hr ago</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔗 System Status</div></div>
+        <div class="int-grid">
+          <div class="int-tile"><div class="int-icon" style="background:var(--blue-bg)">⏱</div><div><div class="int-name">Kronos WFM</div><div class="int-status">● Live</div></div></div>
+          <div class="int-tile"><div class="int-icon" style="background:var(--gold-bg)">🎰</div><div><div class="int-name">Everi Gaming</div><div class="int-status">● Live</div></div></div>
+          <div class="int-tile"><div class="int-icon" style="background:var(--green-bg)">🍽</div><div><div class="int-name">OpenTable</div><div class="int-status">● Live</div></div></div>
+          <div class="int-tile"><div class="int-icon" style="background:var(--red-bg)">📦</div><div><div class="int-name">Yellow Dog</div><div class="int-status">● Live</div></div></div>
+          <div class="int-tile"><div class="int-icon" style="background:var(--blue-bg)">📊</div><div><div class="int-name">Power BI</div><div class="int-status">● Live</div></div></div>
+          <div class="int-tile"><div class="int-icon" style="background:var(--purple-bg)">🛡</div><div><div class="int-name">ILGC Portal</div><div class="int-status">● Synced</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚡ Quick Access</div></div>
+        <div class="ql-grid">
+          <div class="ql-item"><span class="ql-icon">📅</span><span class="ql-text">Master Schedule</span></div>
+          <div class="ql-item"><span class="ql-icon">📋</span><span class="ql-text">SOP Library</span></div>
+          <div class="ql-item"><span class="ql-icon">🎯</span><span class="ql-text">Daily Targets</span></div>
+          <div class="ql-item"><span class="ql-icon">🗂</span><span class="ql-text">Incident Log</span></div>
+          <div class="ql-item"><span class="ql-icon">💳</span><span class="ql-text">VIP Comp Ledger</span></div>
+          <div class="ql-item"><span class="ql-icon">📣</span><span class="ql-text">Team Comms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ F&B OPERATIONS ═══════════ -->
+<div class="page-section" id="sec-operations">
+  <div class="page-header">
+    <div class="breadcrumb">Operations <span>›</span> F&amp;B Dashboard</div>
+    <h1 class="page-title">Food &amp; Beverage <em>Operations</em></h1>
+    <p class="page-subtitle">5 active outlets &nbsp;·&nbsp; $87,000 revenue today &nbsp;·&nbsp; 1,530 covers served</p>
+  </div>
+
+  <div class="kpi-row cols-5">
+    <div class="kpi-card gold"><div class="kpi-label">F&amp;B Revenue Today</div><div class="kpi-value">$87K</div><div class="kpi-delta up">↑ 4.6% vs prior Thu</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Total Covers</div><div class="kpi-value">1,530</div><div class="kpi-delta up">↑ 220 vs last Thu</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Avg Check</div><div class="kpi-value">$56.80</div><div class="kpi-delta up">↑ $3.20</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Food Cost %</div><div class="kpi-value">27.4%</div><div class="kpi-delta up">↓ 0.8 pts · Target 28%</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Bev Cost %</div><div class="kpi-value">21.1%</div><div class="kpi-delta neutral">On par w/ target</div></div>
+  </div>
+
+  <div class="content-grid section-gap" style="grid-template-columns:1fr;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">🍽 Outlet Performance — Live</div><div class="card-action">Export CSV</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Outlet</th><th>Status</th><th>Covers</th><th>Revenue</th><th>Avg Check</th><th>Food Cost</th><th>Labor</th><th>vs Target</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Stack'd Steakhouse</div><div class="td-sub">Signature Fine Dining · Floor 3</div></td><td><div class="pill busy">⚡ Peak</div></td><td class="mono">187</td><td class="mono">$22,400</td><td class="mono">$119.79</td><td class="mono">24.1%</td><td class="mono">18.2%</td><td><div class="prog-bar"><div class="prog-fill" style="width:94%"></div></div></td></tr>
+            <tr><td><div class="td-name">The Pit Bar &amp; Grill</div><div class="td-sub">Casino Floor Bar · Floor 1</div></td><td><div class="pill open">● Open</div></td><td class="mono">640</td><td class="mono">$31,200</td><td class="mono">$48.75</td><td class="mono">29.8%</td><td class="mono">22.4%</td><td><div class="prog-bar"><div class="prog-fill green" style="width:100%"></div></div></td></tr>
+            <tr><td><div class="td-name">High Roller Lounge</div><div class="td-sub">VIP Bottle Service · Floor 4</div></td><td><div class="pill busy">⚡ Peak</div></td><td class="mono">88</td><td class="mono">$18,600</td><td class="mono">$211.36</td><td class="mono">18.2%</td><td class="mono">14.1%</td><td><div class="prog-bar"><div class="prog-fill" style="width:97%"></div></div></td></tr>
+            <tr><td><div class="td-name">Marketplace Buffet</div><div class="td-sub">All-Day Dining · Main Concourse</div></td><td><div class="pill open">● Open</div></td><td class="mono">412</td><td class="mono">$11,900</td><td class="mono">$28.88</td><td class="mono">33.6%</td><td class="mono">28.2%</td><td><div class="prog-bar"><div class="prog-fill amber" style="width:79%"></div></div></td></tr>
+            <tr><td><div class="td-name">Casino Café</div><div class="td-sub">Coffee &amp; Grab-and-Go · 24hr · Lobby</div></td><td><div class="pill open">● Open</div></td><td class="mono">203</td><td class="mono">$2,900</td><td class="mono">$14.29</td><td class="mono">30.1%</td><td class="mono">35.2%</td><td><div class="prog-bar"><div class="prog-fill" style="width:88%"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 Menu Category Mix — Today</div></div>
+      <div class="dept-list">
+        <div class="dept-row"><div class="dept-name">Steaks &amp; Entrées</div><div class="dept-bar"><div class="dept-fill" style="width:80%;background:var(--gold)"></div></div><div class="dept-count">$28,400</div></div>
+        <div class="dept-row"><div class="dept-name">Spirits &amp; Cocktails</div><div class="dept-bar"><div class="dept-fill" style="width:70%;background:var(--blue)"></div></div><div class="dept-count">$24,800</div></div>
+        <div class="dept-row"><div class="dept-name">Wine &amp; Champagne</div><div class="dept-bar"><div class="dept-fill" style="width:52%;background:var(--purple)"></div></div><div class="dept-count">$18,600</div></div>
+        <div class="dept-row"><div class="dept-name">Apps &amp; Small Plates</div><div class="dept-bar"><div class="dept-fill" style="width:30%;background:var(--green)"></div></div><div class="dept-count">$10,800</div></div>
+        <div class="dept-row"><div class="dept-name">Desserts &amp; Coffee</div><div class="dept-bar"><div class="dept-fill" style="width:11%;background:var(--amber)"></div></div><div class="dept-count">$4,400</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">📅 OpenTable — Tonight's Reservations</div><div class="card-action">Manage →</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Time</th><th>Party</th><th>Outlet</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono" style="color:var(--gold)">7:00 PM</td><td>8 guests</td><td>Stack'd</td><td><div class="pill open">Seated</div></td></tr>
+            <tr><td class="mono" style="color:var(--gold)">7:15 PM</td><td>4 guests</td><td>Stack'd</td><td><div class="pill info">Confirmed</div></td></tr>
+            <tr><td class="mono" style="color:var(--gold)">7:30 PM</td><td>VIP · 12 guests</td><td>High Roller</td><td><div class="pill info">Confirmed</div></td></tr>
+            <tr><td class="mono" style="color:var(--gold)">7:45 PM</td><td>2 guests</td><td>Stack'd</td><td><div class="pill pending">Waitlist</div></td></tr>
+            <tr><td class="mono" style="color:var(--gold)">8:00 PM</td><td>6 guests</td><td>Stack'd</td><td><div class="pill info">Confirmed</div></td></tr>
+            <tr><td class="mono" style="color:var(--gold)">8:30 PM</td><td>18 guests</td><td>High Roller</td><td><div class="pill info">Confirmed</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">📦 Yellow Dog — Inventory Alerts</div><div class="card-action">Full Inventory</div></div>
+      <div class="alert-list">
+        <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">Patrón Silver — 2 bottles remaining (par: 24)</div><div class="alert-meta">High Roller Lounge · Critical</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">Veuve Clicquot NV — 4 bottles remaining (par: 18)</div><div class="alert-meta">High Roller Lounge · Critical</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--amber-bg)">⚠️</div><div><div class="alert-text">USDA Prime Ribeye 16oz — 18 lbs (par: 40 lbs)</div><div class="alert-meta">Stack'd Steakhouse · Low</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--amber-bg)">⚠️</div><div><div class="alert-text">King Crab — 12 lbs remaining (par: 30 lbs)</div><div class="alert-meta">Stack'd · Low</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--green-bg)">✅</div><div><div class="alert-text">Domestic beer stock — fully replenished (7-day supply)</div><div class="alert-meta">The Pit · OK</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">👥 F&amp;B Staff — On Floor Now</div></div>
+      <div class="stat-strip" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-box"><div class="stat-val">218</div><div class="stat-lbl">On Clock</div></div>
+        <div class="stat-box"><div class="stat-val">14</div><div class="stat-lbl">On Break</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--red)">6</div><div class="stat-lbl">Absent</div></div>
+      </div>
+      <div class="dept-list">
+        <div class="dept-row"><div class="dept-name">Stack'd Steakhouse</div><div class="dept-bar"><div class="dept-fill" style="width:90%;background:var(--gold)"></div></div><div class="dept-count">38 / 42</div></div>
+        <div class="dept-row"><div class="dept-name">The Pit Bar &amp; Grill</div><div class="dept-bar"><div class="dept-fill" style="width:82%;background:var(--blue)"></div></div><div class="dept-count">64 / 78</div></div>
+        <div class="dept-row"><div class="dept-name">High Roller Lounge</div><div class="dept-bar"><div class="dept-fill" style="width:100%;background:var(--green)"></div></div><div class="dept-count">22 / 22</div></div>
+        <div class="dept-row"><div class="dept-name">Marketplace Buffet</div><div class="dept-bar"><div class="dept-fill amber" style="width:78%"></div></div><div class="dept-count">62 / 80</div></div>
+        <div class="dept-row"><div class="dept-name">Casino Café</div><div class="dept-bar"><div class="dept-fill" style="width:95%;background:var(--purple)"></div></div><div class="dept-count">19 / 20</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ GAMING FLOOR ═══════════ -->
+<div class="page-section" id="sec-gaming">
+  <div class="page-header">
+    <div class="breadcrumb">Operations <span>›</span> Gaming Floor</div>
+    <h1 class="page-title">Gaming Floor <em>Intelligence</em></h1>
+    <p class="page-subtitle">3 active zones &nbsp;·&nbsp; 1,724 gaming positions &nbsp;·&nbsp; Connected via Everi</p>
+  </div>
+
+  <div class="kpi-row cols-5">
+    <div class="kpi-card gold"><div class="kpi-label">Gaming Win Today</div><div class="kpi-value">$441K</div><div class="kpi-delta up">↑ 11.2% vs prior Thu</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Slots Revenue</div><div class="kpi-value">$298K</div><div class="kpi-delta up">↑ 9.4%</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Table Games</div><div class="kpi-value">$143K</div><div class="kpi-delta up">↑ 14.8%</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Hold % (Slots)</div><div class="kpi-value">8.4%</div><div class="kpi-delta up">↑ 0.6 pts · Target 8%</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Active Players</div><div class="kpi-value">1,284</div><div class="kpi-delta up">↑ 188 vs 7PM last Thu</div></div>
+  </div>
+
+  <div class="content-grid section-gap" style="grid-template-columns:1fr;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">🎰 Zone Performance — Everi Live Feed</div><div class="card-action">Everi Dashboard →</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Zone</th><th>Positions</th><th>Active</th><th>Utilization</th><th>Win Today</th><th>Hold %</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Main Floor — Slots Zone A</div><div class="td-sub">Video Slots, $0.01–$5.00</div></td><td class="mono">642</td><td class="mono">528</td><td><div class="prog-bar"><div class="prog-fill" style="width:82%"></div></div></td><td class="mono">$118,400</td><td class="mono">8.1%</td><td><div class="pill open">● High Traffic</div></td></tr>
+            <tr><td><div class="td-name">Main Floor — Slots Zone B</div><div class="td-sub">Premium Slots, $1.00–$25.00</div></td><td class="mono">380</td><td class="mono">276</td><td><div class="prog-bar"><div class="prog-fill" style="width:73%"></div></div></td><td class="mono">$94,200</td><td class="mono">9.2%</td><td><div class="pill open">● Active</div></td></tr>
+            <tr><td><div class="td-name">High Limit Room</div><div class="td-sub">$25.00–$500 denominations</div></td><td class="mono">88</td><td class="mono">61</td><td><div class="prog-bar"><div class="prog-fill green" style="width:69%"></div></div></td><td class="mono">$85,600</td><td class="mono">11.4%</td><td><div class="pill busy">⚡ VIP Active</div></td></tr>
+            <tr><td><div class="td-name">Table Games — Blackjack</div><div class="td-sub">24 tables · $15–$5,000 min</div></td><td class="mono">168</td><td class="mono">144</td><td><div class="prog-bar"><div class="prog-fill" style="width:86%"></div></div></td><td class="mono">$62,800</td><td class="mono">14.2%</td><td><div class="pill busy">⚡ Peak</div></td></tr>
+            <tr><td><div class="td-name">Table Games — Poker</div><div class="td-sub">18 tables · $1/$2 – $25/$50</div></td><td class="mono">198</td><td class="mono">162</td><td><div class="prog-bar"><div class="prog-fill" style="width:82%"></div></div></td><td class="mono">$42,000</td><td class="mono">4.8%</td><td><div class="pill open">● Active</div></td></tr>
+            <tr><td><div class="td-name">Specialty Games</div><div class="td-sub">Roulette, Craps, Baccarat</div></td><td class="mono">148</td><td class="mono">113</td><td><div class="prog-bar"><div class="prog-fill" style="width:76%"></div></div></td><td class="mono">$38,000</td><td class="mono">18.2%</td><td><div class="pill open">● Active</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">⭐ Top 10 Performing Machines</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Machine ID</th><th>Type</th><th>Win Today</th><th>Handle</th></tr></thead>
+          <tbody>
+            <tr><td class="mono" style="color:var(--gold)">SLT-0441</td><td style="font-size:12px">Dragon Cash $5</td><td class="mono" style="color:var(--green);font-weight:600">$8,420</td><td class="mono">$74,200</td></tr>
+            <tr><td class="mono" style="color:var(--gold)">SLT-0088</td><td style="font-size:12px">High Limit $100</td><td class="mono" style="color:var(--green);font-weight:600">$7,840</td><td class="mono">$62,400</td></tr>
+            <tr><td class="mono" style="color:var(--gold)">TBL-BJ-07</td><td style="font-size:12px">Blackjack $500 min</td><td class="mono" style="color:var(--green);font-weight:600">$6,200</td><td class="mono">$42,800</td></tr>
+            <tr><td class="mono" style="color:var(--gold)">SLT-0312</td><td style="font-size:12px">Wheel of Fortune $25</td><td class="mono" style="color:var(--green);font-weight:600">$5,900</td><td class="mono">$38,400</td></tr>
+            <tr><td class="mono" style="color:var(--gold)">TBL-BAC-02</td><td style="font-size:12px">Baccarat VIP</td><td class="mono" style="color:var(--green);font-weight:600">$5,640</td><td class="mono">$34,200</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🔧 Maintenance &amp; Downtime Log</div></div>
+      <div class="alert-list">
+        <div class="alert-item"><div class="alert-icon" style="background:var(--amber-bg)">🔧</div><div><div class="alert-text">Slot Bank 12A — Preventive maintenance 3AM–5AM</div><div class="alert-meta">Scheduled · Tonight · 14 machines</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--green-bg)">✅</div><div><div class="alert-text">TBL-BJ-11 restored — ticket printer replaced</div><div class="alert-meta">Resolved · 4:22 PM today</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">SLT-0219 offline — bill validator jam</div><div class="alert-meta">Tech dispatched · Since 6:40 PM</div></div></div>
+        <div class="alert-item"><div class="alert-icon" style="background:var(--blue-bg)">ℹ️</div><div><div class="alert-text">TITO system maintenance window — Sunday 4AM–6AM</div><div class="alert-meta">Everi scheduled · Planned downtime</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">💳 VIP Comp Ledger — Today</div><div class="card-action">Full Ledger →</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Guest ID</th><th>Tier</th><th>Comps Issued</th><th>Gaming Win</th><th>Ratio</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">VIP-8821</td><td><span class="tag" style="background:var(--gold-bg);color:var(--gold);border:1px solid rgba(184,134,11,.3)">Diamond</span></td><td class="mono" style="color:var(--amber)">$4,800</td><td class="mono">$38,400</td><td class="mono" style="color:var(--green)">12.5%</td></tr>
+            <tr><td class="mono">VIP-4412</td><td><span class="tag" style="background:var(--gold-bg);color:var(--gold);border:1px solid rgba(184,134,11,.3)">Diamond</span></td><td class="mono" style="color:var(--amber)">$3,200</td><td class="mono">$22,600</td><td class="mono" style="color:var(--green)">14.2%</td></tr>
+            <tr><td class="mono">VIP-0093</td><td><span class="tag" style="background:var(--purple-bg);color:var(--purple);border:1px solid rgba(91,63,138,.2)">Platinum</span></td><td class="mono" style="color:var(--red)">$6,100</td><td class="mono">$18,200</td><td class="mono" style="color:var(--red)">33.5%</td></tr>
+            <tr><td class="mono">VIP-7741</td><td><span class="tag" style="background:var(--purple-bg);color:var(--purple);border:1px solid rgba(91,63,138,.2)">Platinum</span></td><td class="mono" style="color:var(--amber)">$1,800</td><td class="mono">$14,400</td><td class="mono" style="color:var(--green)">12.5%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">📈 Hourly Gaming Win — Today</div></div>
+      <div class="bar-chart-wrap">
+        <div class="bar-chart" style="height:110px;">
+          <div class="chart-grid"><div class="chart-line"></div><div class="chart-line"></div><div class="chart-line"></div></div>
+          <div class="bar-group"><div class="bar" style="height:30%;background:var(--gold-light);opacity:.5"></div><span class="bar-label">12P</span></div>
+          <div class="bar-group"><div class="bar" style="height:38%;background:var(--gold-light);opacity:.55"></div><span class="bar-label">1P</span></div>
+          <div class="bar-group"><div class="bar" style="height:44%;background:var(--gold-light);opacity:.6"></div><span class="bar-label">2P</span></div>
+          <div class="bar-group"><div class="bar" style="height:52%;background:var(--gold-light);opacity:.65"></div><span class="bar-label">3P</span></div>
+          <div class="bar-group"><div class="bar" style="height:65%;background:var(--gold-light);opacity:.7"></div><span class="bar-label">4P</span></div>
+          <div class="bar-group"><div class="bar" style="height:72%;background:var(--gold-light);opacity:.75"></div><span class="bar-label">5P</span></div>
+          <div class="bar-group"><div class="bar" style="height:82%;background:var(--gold-light);opacity:.85"></div><span class="bar-label">6P</span></div>
+          <div class="bar-group"><div class="bar" style="height:100%;background:var(--gold)"></div><span class="bar-label" style="color:var(--gold);font-weight:700">7P↑</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HR & WORKFORCE ═══════════ -->
+<div class="page-section" id="sec-people">
+  <div class="page-header">
+    <div class="breadcrumb">HR <span>›</span> Workforce Management</div>
+    <h1 class="page-title">HR &amp; <em>Workforce</em></h1>
+    <p class="page-subtitle">Powered by Kronos WFM &nbsp;·&nbsp; 1,200 total associates &nbsp;·&nbsp; 847 active today</p>
+  </div>
+
+  <div class="kpi-row cols-4">
+    <div class="kpi-card gold"><div class="kpi-label">Total Associates</div><div class="kpi-value">1,200</div><div class="kpi-delta neutral">Full-time + Part-time</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Clocked In Now</div><div class="kpi-value">847</div><div class="kpi-delta up">↑ 34 vs last Thu</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Scheduled Today</div><div class="kpi-value">912</div><div class="kpi-delta down">↓ 65 gap (call-outs)</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Open Positions</div><div class="kpi-value">28</div><div class="kpi-delta neutral">Across 7 departments</div></div>
+  </div>
+
+  <div class="content-grid grid-main-side section-gap">
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">👥 Department Staffing — Live</div><div class="card-action">Kronos →</div></div>
+        <div class="card-body" style="padding:12px 18px;">
+          <table class="data-table">
+            <thead><tr><th>Department</th><th>Scheduled</th><th>On Clock</th><th>Absent</th><th>Coverage</th><th>Overtime</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-name">Gaming Floor Operations</div></td><td class="mono">346</td><td class="mono">312</td><td class="mono" style="color:var(--red)">34</td><td><div class="prog-bar"><div class="prog-fill" style="width:90%"></div></div></td><td class="mono" style="color:var(--amber)">12 hrs</td></tr>
+              <tr><td><div class="td-name">Food &amp; Beverage</div></td><td class="mono">255</td><td class="mono">218</td><td class="mono" style="color:var(--amber)">6</td><td><div class="prog-bar"><div class="prog-fill" style="width:85%"></div></div></td><td class="mono" style="color:var(--amber)">8 hrs</td></tr>
+              <tr><td><div class="td-name">Hotel &amp; Concierge</div></td><td class="mono">99</td><td class="mono">94</td><td class="mono" style="color:var(--green)">2</td><td><div class="prog-bar"><div class="prog-fill green" style="width:95%"></div></div></td><td class="mono">2 hrs</td></tr>
+              <tr><td><div class="td-name">Security &amp; Surveillance</div></td><td class="mono">144</td><td class="mono">144</td><td class="mono" style="color:var(--green)">0</td><td><div class="prog-bar"><div class="prog-fill green" style="width:100%"></div></div></td><td class="mono">0 hrs</td></tr>
+              <tr><td><div class="td-name">Facilities &amp; EVS</div></td><td class="mono">102</td><td class="mono">79</td><td class="mono" style="color:var(--red)">23</td><td><div class="prog-bar"><div class="prog-fill amber" style="width:77%"></div></div></td><td class="mono">0 hrs</td></tr>
+              <tr><td><div class="td-name">Finance &amp; Cage</div></td><td class="mono">48</td><td class="mono">46</td><td class="mono" style="color:var(--green)">0</td><td><div class="prog-bar"><div class="prog-fill green" style="width:96%"></div></div></td><td class="mono">0 hrs</td></tr>
+              <tr><td><div class="td-name">Marketing &amp; VIP Services</div></td><td class="mono">32</td><td class="mono">28</td><td class="mono" style="color:var(--green)">0</td><td><div class="prog-bar"><div class="prog-fill" style="width:88%"></div></div></td><td class="mono">0 hrs</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Open Positions — Active Requisitions</div><div class="card-action">Post New Role</div></div>
+        <div class="card-body" style="padding:12px 18px;">
+          <table class="data-table">
+            <thead><tr><th>Position</th><th>Dept</th><th>Req #</th><th>Days Open</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-name">Slot Technician II</div></td><td style="font-size:12px">Gaming</td><td class="mono">REQ-0041</td><td class="mono">12</td><td><div class="pill info">Interviewing</div></td></tr>
+              <tr><td><div class="td-name">Assistant F&amp;B Manager</div></td><td style="font-size:12px">F&amp;B</td><td class="mono">REQ-0038</td><td class="mono">18</td><td><div class="pill pending">Screening</div></td></tr>
+              <tr><td><div class="td-name">EVS Supervisor (Night)</div></td><td style="font-size:12px">Facilities</td><td class="mono">REQ-0044</td><td class="mono">7</td><td><div class="pill info">Interviewing</div></td></tr>
+              <tr><td><div class="td-name">Blackjack Dealer (x4)</div></td><td style="font-size:12px">Gaming</td><td class="mono">REQ-0031</td><td class="mono">24</td><td><div class="pill info">Offers Out</div></td></tr>
+              <tr><td><div class="td-name">Sommelier</div></td><td style="font-size:12px">F&amp;B</td><td class="mono">REQ-0047</td><td class="mono">4</td><td><div class="pill pending">Posted</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📆 Today's Schedule Gaps</div></div>
+        <div class="alert-list">
+          <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">Gaming Floor — 3 dealers uncovered, 8PM–2AM</div><div class="alert-meta">Kronos · Requires action</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--red-bg)">🔴</div><div><div class="alert-text">EVS — 6 uncovered shifts, all evening</div><div class="alert-meta">Facilities · Requires action</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--amber-bg)">⚠️</div><div><div class="alert-text">Marketplace Buffet — 3 servers call-outs</div><div class="alert-meta">F&amp;B · Coverage partially filled</div></div></div>
+          <div class="alert-item"><div class="alert-icon" style="background:var(--green-bg)">✅</div><div><div class="alert-text">Security fully staffed all shifts</div><div class="alert-meta">100% coverage confirmed</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">🏆 Training Completion</div></div>
+        <div class="card-body">
+          <div class="comp-row"><div class="comp-name">Responsible Gaming (ILGC)</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+          <div class="comp-row"><div class="comp-name">BASSET Alcohol Training</div><div class="comp-bar"><div class="comp-fill ok" style="width:96%"></div></div><div class="comp-pct" style="color:var(--green)">96%</div></div>
+          <div class="comp-row"><div class="comp-name">AML / KYC Awareness</div><div class="comp-bar"><div class="comp-fill ok" style="width:98%"></div></div><div class="comp-pct" style="color:var(--green)">98%</div></div>
+          <div class="comp-row"><div class="comp-name">Food Safety Certification</div><div class="comp-bar"><div class="comp-fill warn" style="width:88%"></div></div><div class="comp-pct" style="color:var(--amber)">88%</div></div>
+          <div class="comp-row"><div class="comp-name">Emergency Response</div><div class="comp-bar"><div class="comp-fill ok" style="width:94%"></div></div><div class="comp-pct" style="color:var(--green)">94%</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Labor Metrics — MTD</div></div>
+        <div class="card-body">
+          <div class="comp-row"><div class="comp-name">Labor Cost %</div><div class="comp-bar"><div class="comp-fill ok" style="width:57%"></div></div><div class="comp-pct" style="color:var(--green)">28.3%</div></div>
+          <div class="comp-row"><div class="comp-name">Overtime Hours</div><div class="comp-bar"><div class="comp-fill warn" style="width:44%"></div></div><div class="comp-pct" style="color:var(--amber)">22 hrs</div></div>
+          <div class="comp-row"><div class="comp-name">Turnover Rate (30d)</div><div class="comp-bar"><div class="comp-fill ok" style="width:28%"></div></div><div class="comp-pct" style="color:var(--green)">3.2%</div></div>
+          <div class="comp-row"><div class="comp-name">Absentee Rate</div><div class="comp-bar"><div class="comp-fill warn" style="width:36%"></div></div><div class="comp-pct" style="color:var(--amber)">3.6%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ FINANCE ═══════════ -->
+<div class="page-section" id="sec-finance">
+  <div class="page-header">
+    <div class="breadcrumb">Finance <span>›</span> P&amp;L &amp; Revenue</div>
+    <h1 class="page-title">Financial <em>Performance</em></h1>
+    <p class="page-subtitle">MTD figures &nbsp;·&nbsp; YTD revenue tracking &nbsp;·&nbsp; Power BI integrated</p>
+  </div>
+
+  <div class="kpi-row cols-4">
+    <div class="kpi-card gold"><div class="kpi-label">MTD Total Revenue</div><div class="kpi-value">$14.2M</div><div class="kpi-delta up">↑ 6.8% vs budget</div></div>
+    <div class="kpi-card green"><div class="kpi-label">MTD Gaming Win</div><div class="kpi-value">$9.8M</div><div class="kpi-delta up">↑ 9.1% vs budget</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">MTD F&amp;B Revenue</div><div class="kpi-value">$2.1M</div><div class="kpi-delta up">↑ 4.2% vs budget</div></div>
+    <div class="kpi-card red"><div class="kpi-label">MTD EBITDA</div><div class="kpi-value">$3.4M</div><div class="kpi-delta up">↑ 12.1% vs budget</div></div>
+  </div>
+
+  <div class="content-grid section-gap" style="grid-template-columns:1fr;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📊 P&amp;L Summary — March 2026 vs Budget</div><div class="card-action">Export to Excel</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Line Item</th><th>Actual MTD</th><th>Budget MTD</th><th>Variance $</th><th>Variance %</th><th>YTD Actual</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Gaming Revenue</div></td><td class="mono">$9,820,000</td><td class="mono">$9,000,000</td><td class="mono" style="color:var(--green);font-weight:600">+$820,000</td><td class="mono" style="color:var(--green)">+9.1%</td><td class="mono">$24,100,000</td></tr>
+            <tr><td><div class="td-name">F&amp;B Revenue</div></td><td class="mono">$2,108,000</td><td class="mono">$2,024,000</td><td class="mono" style="color:var(--green);font-weight:600">+$84,000</td><td class="mono" style="color:var(--green)">+4.2%</td><td class="mono">$5,140,000</td></tr>
+            <tr><td><div class="td-name">Hotel / Other</div></td><td class="mono">$2,272,000</td><td class="mono">$2,180,000</td><td class="mono" style="color:var(--green);font-weight:600">+$92,000</td><td class="mono" style="color:var(--green)">+4.2%</td><td class="mono">$5,500,000</td></tr>
+            <tr style="border-top:2px solid var(--border-dark)"><td><div class="td-name" style="font-weight:700">Total Revenue</div></td><td class="mono" style="font-weight:700">$14,200,000</td><td class="mono">$13,204,000</td><td class="mono" style="color:var(--green);font-weight:700">+$996,000</td><td class="mono" style="color:var(--green);font-weight:700">+7.5%</td><td class="mono" style="font-weight:700">$34,740,000</td></tr>
+            <tr><td><div class="td-name">Gaming Expenses</div></td><td class="mono" style="color:var(--red)">($5,412,000)</td><td class="mono">($5,600,000)</td><td class="mono" style="color:var(--green)">+$188,000</td><td class="mono" style="color:var(--green)">+3.4%</td><td class="mono" style="color:var(--red)">($13,200,000)</td></tr>
+            <tr><td><div class="td-name">F&amp;B COGS</div></td><td class="mono" style="color:var(--red)">($578,000)</td><td class="mono">($607,000)</td><td class="mono" style="color:var(--green)">+$29,000</td><td class="mono" style="color:var(--green)">+4.8%</td><td class="mono" style="color:var(--red)">($1,430,000)</td></tr>
+            <tr><td><div class="td-name">Labor (All Depts)</div></td><td class="mono" style="color:var(--red)">($4,018,000)</td><td class="mono">($4,100,000)</td><td class="mono" style="color:var(--green)">+$82,000</td><td class="mono" style="color:var(--green)">+2.0%</td><td class="mono" style="color:var(--red)">($9,800,000)</td></tr>
+            <tr><td><div class="td-name">Overhead / G&amp;A</div></td><td class="mono" style="color:var(--red)">($780,000)</td><td class="mono">($760,000)</td><td class="mono" style="color:var(--red)">-$20,000</td><td class="mono" style="color:var(--red)">-2.6%</td><td class="mono" style="color:var(--red)">($1,900,000)</td></tr>
+            <tr style="border-top:2px solid var(--gold);background:var(--gold-bg)"><td><div class="td-name" style="font-weight:700;color:var(--gold)">EBITDA</div></td><td class="mono" style="font-weight:700;color:var(--gold)">$3,412,000</td><td class="mono">$3,037,000</td><td class="mono" style="color:var(--green);font-weight:700">+$375,000</td><td class="mono" style="color:var(--green);font-weight:700">+12.3%</td><td class="mono" style="font-weight:700;color:var(--gold)">$8,410,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📈 Monthly Revenue Trend — 2026</div></div>
+      <div class="bar-chart-wrap">
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Actual</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--border-dark)"></div>Budget</div>
+        </div>
+        <div class="bar-chart" style="height:120px;">
+          <div class="chart-grid"><div class="chart-line"></div><div class="chart-line"></div><div class="chart-line"></div></div>
+          <div class="bar-group"><div class="bar" style="height:78%;background:var(--gold);opacity:.75"></div><div class="bar" style="height:72%;background:var(--surface3);border:1px dashed var(--border-dark)"></div><span class="bar-label">JAN</span></div>
+          <div class="bar-group"><div class="bar" style="height:72%;background:var(--gold);opacity:.75"></div><div class="bar" style="height:68%;background:var(--surface3);border:1px dashed var(--border-dark)"></div><span class="bar-label">FEB</span></div>
+          <div class="bar-group"><div class="bar" style="height:88%;background:var(--gold)"></div><div class="bar" style="height:78%;background:var(--surface3);border:1px dashed var(--border-dark)"></div><span class="bar-label" style="color:var(--gold);font-weight:700">MAR</span></div>
+          <div class="bar-group"><div class="bar" style="height:35%;background:var(--gold);opacity:.3;border:1px dashed rgba(184,134,11,.4)"></div><div class="bar" style="height:82%;background:var(--surface3);border:1px dashed var(--border-dark)"></div><span class="bar-label">APR</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🏦 Cage &amp; Cash Management</div><div class="card-action">Audit Log →</div></div>
+      <div class="card-body">
+        <div class="comp-row"><div class="comp-name">Main Cage — Drop Count</div><div class="comp-bar"><div class="comp-fill ok" style="width:82%"></div></div><div class="comp-pct" style="color:var(--gold)">$441K</div></div>
+        <div class="comp-row"><div class="comp-name">TITO Redemptions Today</div><div class="comp-bar"><div class="comp-fill blue" style="width:68%"></div></div><div class="comp-pct" style="color:var(--blue)">$320K</div></div>
+        <div class="comp-row"><div class="comp-name">ATM Transactions</div><div class="comp-bar"><div class="comp-fill purple" style="width:44%"></div></div><div class="comp-pct" style="color:var(--purple)">614</div></div>
+        <div class="comp-row"><div class="comp-name">Chip Float — Table Games</div><div class="comp-bar"><div class="comp-fill ok" style="width:60%"></div></div><div class="comp-pct" style="color:var(--green)">$2.1M</div></div>
+        <div class="comp-row"><div class="comp-name">Cash Variance (Daily)</div><div class="comp-bar"><div class="comp-fill ok" style="width:4%"></div></div><div class="comp-pct" style="color:var(--green)">$0</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COMPLIANCE ═══════════ -->
+<div class="page-section" id="sec-compliance">
+  <div class="page-header">
+    <div class="breadcrumb">Compliance <span>›</span> Regulatory Dashboard</div>
+    <h1 class="page-title">Compliance &amp; <em>Regulatory</em></h1>
+    <p class="page-subtitle">ILGC · AML · Responsible Gaming · Food Safety · Liquor · Internal Audit</p>
+  </div>
+
+  <div class="kpi-row cols-4">
+    <div class="kpi-card green"><div class="kpi-label">Overall Compliance Score</div><div class="kpi-value">96.4%</div><div class="kpi-delta up">↑ 1.2 pts this quarter</div></div>
+    <div class="kpi-card gold"><div class="kpi-label">Open Action Items</div><div class="kpi-value">7</div><div class="kpi-delta down">↓ 3 since last audit</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Next ILGC Audit</div><div class="kpi-value">Apr 18</div><div class="kpi-delta neutral">16 days away</div></div>
+    <div class="kpi-card red"><div class="kpi-label">SAR Filed MTD</div><div class="kpi-value">2</div><div class="kpi-delta neutral">Within ILGC limits</div></div>
+  </div>
+
+  <div class="content-grid grid-2 section-gap">
+    <div class="card">
+      <div class="card-header"><div class="card-title">🛡 ILGC Regulatory Standards</div><div class="card-action">Full Report →</div></div>
+      <div class="card-body">
+        <div class="comp-row"><div class="comp-name">ILGC License Compliance</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+        <div class="comp-row"><div class="comp-name">Internal Controls (ICS)</div><div class="comp-bar"><div class="comp-fill ok" style="width:98%"></div></div><div class="comp-pct" style="color:var(--green)">98%</div></div>
+        <div class="comp-row"><div class="comp-name">Responsible Gaming Program</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+        <div class="comp-row"><div class="comp-name">Self-Exclusion Enforcement</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+        <div class="comp-row"><div class="comp-name">Slot Certification (PAR Sheets)</div><div class="comp-bar"><div class="comp-fill ok" style="width:97%"></div></div><div class="comp-pct" style="color:var(--green)">97%</div></div>
+        <div class="comp-row"><div class="comp-name">Surveillance Coverage</div><div class="comp-bar"><div class="comp-fill ok" style="width:99%"></div></div><div class="comp-pct" style="color:var(--green)">99%</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🔍 AML / KYC Monitoring</div><div class="card-action">FinCEN Reports</div></div>
+      <div class="card-body">
+        <div class="comp-row"><div class="comp-name">CTR Filings (MTD)</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">14</div></div>
+        <div class="comp-row"><div class="comp-name">SAR Filings (MTD)</div><div class="comp-bar"><div class="comp-fill warn" style="width:20%"></div></div><div class="comp-pct" style="color:var(--amber)">2</div></div>
+        <div class="comp-row"><div class="comp-name">KYC Profile Completion</div><div class="comp-bar"><div class="comp-fill ok" style="width:94%"></div></div><div class="comp-pct" style="color:var(--green)">94%</div></div>
+        <div class="comp-row"><div class="comp-name">Chip-In / Chip-Out Logs</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+        <div class="comp-row"><div class="comp-name">Title 31 Training — Staff</div><div class="comp-bar"><div class="comp-fill ok" style="width:98%"></div></div><div class="comp-pct" style="color:var(--green)">98%</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🚩 AML Transaction Flags — Today</div></div>
+      <div style="padding:10px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;">
+        <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);flex:0 0 68px">Guest ID</div>
+        <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);flex:1">Flag Reason</div>
+        <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);width:72px">Amount</div>
+        <div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);width:60px;text-align:right">Status</div>
+      </div>
+      <div class="aml-row"><div class="aml-id">GU-82241</div><div class="aml-detail">Cash-in exceeds $10,000 threshold — CTR required</div><div class="aml-amount">$11,400</div><div style="width:60px;text-align:right"><div class="pill ok">Filed</div></div></div>
+      <div class="aml-row"><div class="aml-id">GU-44019</div><div class="aml-detail">Structuring pattern detected — 3 separate $3,000 buy-ins</div><div class="aml-amount">$9,000</div><div style="width:60px;text-align:right"><div class="pill warn">Review</div></div></div>
+      <div class="aml-row"><div class="aml-id">GU-71880</div><div class="aml-detail">Cash-in $10,200 · CTR submitted to FinCEN</div><div class="aml-amount">$10,200</div><div style="width:60px;text-align:right"><div class="pill ok">Filed</div></div></div>
+      <div class="aml-row"><div class="aml-id">GU-58823</div><div class="aml-detail">Self-exclusion match — escorted from property</div><div class="aml-amount">—</div><div style="width:60px;text-align:right"><div class="pill open">Resolved</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">🍽 Food Safety &amp; Liquor Compliance</div></div>
+      <div class="card-body">
+        <div class="comp-row"><div class="comp-name">Chicago Dept of Public Health</div><div class="comp-bar"><div class="comp-fill ok" style="width:96%"></div></div><div class="comp-pct" style="color:var(--green)">96%</div></div>
+        <div class="comp-row"><div class="comp-name">HACCP Log Completion</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+        <div class="comp-row"><div class="comp-name">Temp Logs — All Kitchens</div><div class="comp-bar"><div class="comp-fill ok" style="width:98%"></div></div><div class="comp-pct" style="color:var(--green)">98%</div></div>
+        <div class="comp-row"><div class="comp-name">IL Liquor Control Commission</div><div class="comp-bar"><div class="comp-fill warn" style="width:88%"></div></div><div class="comp-pct" style="color:var(--amber)">88%</div></div>
+        <div class="comp-row"><div class="comp-name">BASSET Staff Certification</div><div class="comp-bar"><div class="comp-fill ok" style="width:93%"></div></div><div class="comp-pct" style="color:var(--green)">93%</div></div>
+        <div class="comp-row"><div class="comp-name">Allergen Menu Accuracy</div><div class="comp-bar"><div class="comp-fill ok" style="width:100%"></div></div><div class="comp-pct" style="color:var(--green)">100%</div></div>
+      </div>
+    </div>
+
+    <div class="card full-width">
+      <div class="card-header"><div class="card-title">📋 Internal Audit Log — Recent Actions</div><div class="card-action">Full Log →</div></div>
+      <div>
+        <div class="audit-item"><div class="audit-time">Today 5:12P</div><div class="audit-action">BASSET violation warning issued — Pit Bar server over-service incident</div><div class="audit-user">Security / VP Ops</div></div>
+        <div class="audit-item"><div class="audit-time">Today 2:44P</div><div class="audit-action">CTR #2 filed with FinCEN — guest GU-71880, cash-in $10,200</div><div class="audit-user">Finance / Cage Mgr</div></div>
+        <div class="audit-item"><div class="audit-time">Today 1:10P</div><div class="audit-action">Self-exclusion hit confirmed — guest GU-58823 escorted off property</div><div class="audit-user">Security Director</div></div>
+        <div class="audit-item"><div class="audit-time">Apr 1 10:30A</div><div class="audit-action">Monthly food safety walk completed — Stack'd &amp; Buffet. 2 minor items flagged, corrected same day</div><div class="audit-user">F&amp;B Manager / Health Dept</div></div>
+        <div class="audit-item"><div class="audit-time">Mar 28 3:00P</div><div class="audit-action">ILGC internal controls quarterly review submitted on time — no deficiencies</div><div class="audit-user">VP Operations / CFO</div></div>
+        <div class="audit-item"><div class="audit-time">Mar 20 9:00A</div><div class="audit-action">SAR filed for structuring pattern — guest GU-44019 — under active review</div><div class="audit-user">Compliance Officer</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ EVENTS ═══════════ -->
+<div class="page-section" id="sec-events">
+  <div class="page-header">
+    <div class="breadcrumb">Operations <span>›</span> Events &amp; Entertainment</div>
+    <h1 class="page-title">Events &amp; <em>Entertainment</em></h1>
+    <p class="page-subtitle">Concert hall · Private events · Boxing · VIP packages · Group dining</p>
+  </div>
+
+  <div class="kpi-row cols-4">
+    <div class="kpi-card gold"><div class="kpi-label">Events MTD</div><div class="kpi-value">24</div><div class="kpi-delta up">↑ 8 vs prior month</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Event Revenue MTD</div><div class="kpi-value">$1.8M</div><div class="kpi-delta up">↑ 22% vs budget</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Tickets Sold MTD</div><div class="kpi-value">18,400</div><div class="kpi-delta up">↑ 3,200 YoY</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Private Events MTD</div><div class="kpi-value">$410K</div><div class="kpi-delta up">↑ 18% vs budget</div></div>
+  </div>
+
+  <div class="content-grid section-gap" style="grid-template-columns:1fr;">
+    <div class="card">
+      <div class="card-header"><div class="card-title">🎭 Upcoming Events — April / May 2026</div><div class="card-action">Add Event</div></div>
+      <div>
+        <div class="event-row"><div class="event-date">Apr 5</div><div><div class="event-name">Chicago Blues Fest Pre-Party</div><div class="event-type">Concert Hall · 2,400 capacity · Sponsorship: Old Style</div></div><div style="text-align:right;flex-shrink:0"><div class="pill open" style="margin-bottom:4px">On Sale</div><div class="event-rev">$88,000</div></div></div>
+        <div class="event-row"><div class="event-date">Apr 8</div><div><div class="event-name">Luxury Car Dealer Buyout — Private Dinner</div><div class="event-type">Stack'd Steakhouse · 200 guests · Full buyout</div></div><div style="text-align:right;flex-shrink:0"><div class="pill ok" style="margin-bottom:4px">Contracted</div><div class="event-rev">$48,000</div></div></div>
+        <div class="event-row"><div class="event-date">Apr 12</div><div><div class="event-name">WBC Championship Boxing — Chicago vs. Dallas</div><div class="event-type">Main Event Hall · 4,800 capacity · ESPN broadcast</div></div><div style="text-align:right;flex-shrink:0"><div class="pill open" style="margin-bottom:4px">On Sale</div><div class="event-rev">$420,000</div></div></div>
+        <div class="event-row"><div class="event-date">Apr 19</div><div><div class="event-name">Spring Gala — Illinois Gaming Association</div><div class="event-type">Ballroom · 600 guests · Formal dinner + Casino floor</div></div><div style="text-align:right;flex-shrink:0"><div class="pill info" style="margin-bottom:4px">Planning</div><div class="event-rev">$120,000</div></div></div>
+        <div class="event-row"><div class="event-date">Apr 26</div><div><div class="event-name">DJ Tiësto — Chicago Residency Night 2</div><div class="event-type">Concert Hall · 2,400 capacity · VIP tables $2,500+</div></div><div style="text-align:right;flex-shrink:0"><div class="pill open" style="margin-bottom:4px">On Sale</div><div class="event-rev">$310,000</div></div></div>
+        <div class="event-row"><div class="event-date">May 3</div><div><div class="event-name">Corporate Team Buyout — Fortune 500 Co.</div><div class="event-type">Full Casino Floor · Private gaming · Catering incl.</div></div><div style="text-align:right;flex-shrink:0"><div class="pill ok" style="margin-bottom:4px">Contracted</div><div class="event-rev">$240,000</div></div></div>
+        <div class="event-row"><div class="event-date">May 10</div><div><div class="event-name">Mother's Day Brunch Package</div><div class="event-type">All F&amp;B Outlets · Special menu · Hotel package</div></div><div style="text-align:right;flex-shrink:0"><div class="pill info" style="margin-bottom:4px">Planning</div><div class="event-rev">$95,000</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">✅ Apr 12 Boxing Event — Pre-Event Checklist</div></div>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box checked">✓</div><div class="check-label checked">Venue layout &amp; ring spec confirmed with promoter</div><div class="check-owner">VP Ops</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box checked">✓</div><div class="check-label checked">ESPN broadcast team access — coord. with A/V</div><div class="check-owner">Events Dir.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box checked">✓</div><div class="check-label checked">Security headcount — 80 additional officers confirmed</div><div class="check-owner">Security</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box checked">✓</div><div class="check-label checked">F&amp;B menus &amp; staffing plan — all 5 outlets</div><div class="check-owner">F&amp;B Mgr</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">VIP comp packages finalized — 42 packages pending</div><div class="check-owner">VIP Services</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">IL State Police permit for overflow crowd control</div><div class="check-owner">Compliance</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">POS system load test — mobile units for event floor</div><div class="check-owner">IT / F&amp;B</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-label">Final walk-through with GM — Apr 11 9AM</div><div class="check-owner">VP Ops</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">💼 Private Event Pipeline</div><div class="card-action">New Inquiry</div></div>
+      <div class="card-body" style="padding:12px 18px;">
+        <table class="data-table">
+          <thead><tr><th>Event</th><th>Date</th><th>Value</th><th>Stage</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-name">Tech Conference Dinner</div><div class="td-sub">800 guests</div></td><td class="mono" style="font-size:11px">Jun 14</td><td class="mono" style="color:var(--green);font-weight:600">$180K</td><td><div class="pill info">Proposal</div></td></tr>
+            <tr><td><div class="td-name">Wedding — Kovács/Chen</div><div class="td-sub">320 guests</div></td><td class="mono" style="font-size:11px">Jul 19</td><td class="mono" style="color:var(--green);font-weight:600">$95K</td><td><div class="pill ok">Deposit</div></td></tr>
+            <tr><td><div class="td-name">Political Fundraiser</div><div class="td-sub">400 guests</div></td><td class="mono" style="font-size:11px">Aug 2</td><td class="mono" style="color:var(--green);font-weight:600">$220K</td><td><div class="pill pending">Review</div></td></tr>
+            <tr><td><div class="td-name">NBA Draft Party — Local TV</div><div class="td-sub">150 VIPs</div></td><td class="mono" style="font-size:11px">Jun 26</td><td class="mono" style="color:var(--green);font-weight:600">$42K</td><td><div class="pill ok">Contracted</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card full-width">
+      <div class="card-header"><div class="card-title">🗓 Apr 12 Boxing Night — Ops Timeline</div></div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot gold">🏗</div><div><div class="tl-title">8:00 AM — Venue Setup Begins</div><div class="tl-desc">Ring installation crew, AV setup, ESPN broadcast infrastructure, temporary bar setup on event floor.</div><div class="tl-time">Facilities + Events Team · 6-hour setup window</div></div></div>
+        <div class="tl-item"><div class="tl-dot blue">🍽</div><div><div class="tl-title">2:00 PM — F&amp;B Pre-Shift Briefing</div><div class="tl-desc">All outlet managers + 300+ event staff briefed on service standards, VIP comp protocols, rush scenarios.</div><div class="tl-time">VP Operations chairs · All F&amp;B leads required</div></div></div>
+        <div class="tl-item"><div class="tl-dot green">🚪</div><div><div class="tl-title">5:00 PM — Doors Open to Public</div><div class="tl-desc">General admission entry. Security perimeter active. Pit Bar opens for pre-fight dining. Slots &amp; tables at full capacity.</div><div class="tl-time">Security + Operations · Expected 1,800 guests by 6PM</div></div></div>
+        <div class="tl-item"><div class="tl-dot gold">⭐</div><div><div class="tl-title">6:30 PM — VIP Suite &amp; High Roller Doors</div><div class="tl-desc">42 VIP packages activated. Dedicated host team. Bottle service pre-poured. Private gaming access opens.</div><div class="tl-time">VIP Services + High Roller Lounge</div></div></div>
+        <div class="tl-item"><div class="tl-dot blue">🥊</div><div><div class="tl-title">8:00 PM — Main Event (ESPN Live)</div><div class="tl-desc">All F&amp;B outlets at peak service. Mobile POS active event floor. Security at full deployment. Surveillance monitoring max.</div><div class="tl-time">4,800 capacity · All hands on deck</div></div></div>
+        <div class="tl-item"><div class="tl-dot green">🎉</div><div><div class="tl-title">10:30 PM+ — Post-Fight Operations</div><div class="tl-desc">Casino floor expected surge. After-party at High Roller. Crowd control wind-down protocol active. Comp redemptions peak.</div><div class="tl-time">Extended hours · Last call 2AM</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="footer">
+  <div>Casino Ops Central &nbsp;·&nbsp; <strong>Bally's Chicago</strong> &nbsp;·&nbsp; Designed &amp; Deployed by <strong>Daniel Dantes</strong>, VP Operations &nbsp;·&nbsp; Q1 2026</div>
+  <div id="footerTime">All systems live · Auto-refresh every 2 min</div>
+</div>
+
+<script>
+// ── SIDEBAR PANEL CONTENT ──
+const sidebarPanels = {
+  'kpi-summary': `
+    <div style="padding:18px 20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:14px;">KPI Summary <span style="color:var(--gold);font-style:italic;">Today</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${[
+          ['Total Revenue','$612K','↑ 8.4%','green'],
+          ['Gaming Win','$441K','↑ 11.2%','green'],
+          ['F&B Revenue','$87K','↑ 4.6%','green'],
+          ['Labor Cost %','28.3%','↓ 1.1 pts','green'],
+          ['Guest Sat.','4.71 / 5','↑ from 4.58','green'],
+          ['Covers Served','1,530','↑ 220','green'],
+          ['VIP Comps Issued','$15,900','Within limits','neutral'],
+          ['Active Players','1,284','↑ 188','green'],
+          ['Compliance Score','96.4%','↑ 1.2 pts','green'],
+        ].map(([label,val,delta,dir])=>`
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;">${label}</div>
+              <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--text);">${val}</div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--${dir==='green'?'green':dir==='red'?'red':'text-dim'});">${delta}</div>
+          </div>`).join('')}
+      </div>
+    </div>`,
+  'alert-feed': `
+    <div style="padding:18px 20px 10px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:14px;">Alert Feed <span style="color:var(--red);font-style:italic;">5 Active</span></div>
+    </div>
+    ${[
+      ['🔴','var(--red-bg)','VIP comp threshold exceeded by $4,200','High Roller · 14 min ago','CRITICAL'],
+      ['⚡','var(--amber-bg)','Stack\'d approaching full capacity (187/200)','F3 · 28 min ago','WARNING'],
+      ['📦','var(--blue-bg)','Liquor par — Patrón Silver & Veuve critically low','Beverage · 1 hr ago','WARNING'],
+      ['✅','var(--green-bg)','Revenue pace: 82% of nightly goal at 7PM','Finance · 2 hr ago','INFO'],
+      ['👤','var(--surface3)','3 call-outs gaming floor — coverage redeployed','HR · 3 hr ago','INFO'],
+      ['🔧','var(--amber-bg)','SLT-0219 offline — bill validator jam','Tech dispatched · 6:40 PM','WARNING'],
+    ].map(([icon,bg,text,meta,tag])=>`
+      <div style="display:flex;gap:10px;padding:11px 20px;border-bottom:1px solid var(--border);">
+        <div style="width:30px;height:30px;border-radius:7px;background:${bg};border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">${icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:2px;">${text}</div>
+          <div style="font-size:10px;color:var(--text-dim);">${meta}</div>
+        </div>
+      </div>`).join('')}`,
+  'master-schedule': `
+    <div style="padding:18px 20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">Master Schedule</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">Thursday, April 2 · All departments</div>
+      ${[
+        ['6:00 AM','EVS Morning Crew','Facilities','✅'],
+        ['7:00 AM','Kitchen Prep — All Outlets','F&B','✅'],
+        ['9:00 AM','Daily Ops Briefing','VP Ops','✅'],
+        ['11:00 AM','Lunch Service Opens','F&B','✅'],
+        ['2:00 PM','Cage Shift Change','Finance','✅'],
+        ['3:00 PM','Gaming Floor — Eve Dealers','Gaming','✅'],
+        ['4:00 PM','F&B Pre-Shift Lineups','F&B','⏳'],
+        ['5:00 PM','VIP Host Team Arrival','VIP Services','⏳'],
+        ['8:00 PM','Peak Gaming Floor','Gaming','⏳'],
+        ['2:00 AM','Night Crew / EVS Deep Clean','Facilities','⏳'],
+      ].map(([time,task,dept,status])=>`
+        <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);width:52px;flex-shrink:0;">${time}</div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:600;color:var(--text);">${task}</div>
+            <div style="font-size:10px;color:var(--text-dim);">${dept}</div>
+          </div>
+          <div style="font-size:13px;">${status}</div>
+        </div>`).join('')}
+    </div>`,
+  'daily-targets': `
+    <div style="padding:18px 20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:14px;">Daily Targets <span style="color:var(--gold);font-style:italic;">vs Actual</span></div>
+      ${[
+        ['Total Revenue','$565K','$612K','108%','green'],
+        ['Gaming Win','$400K','$441K','110%','green'],
+        ['F&B Revenue','$83K','$87K','105%','green'],
+        ['Total Covers','1,400','1,530','109%','green'],
+        ['Labor Cost %','29.0%','28.3%','102%','green'],
+        ['VIP Comp Ratio','≤15%','12.8%','✓','green'],
+        ['Guest Sat.','4.50','4.71','105%','green'],
+        ['Food Cost %','28.0%','27.4%','102%','green'],
+        ['Bev Cost %','22.0%','21.1%','104%','green'],
+      ].map(([metric,target,actual,pct,dir])=>`
+        <div style="padding:9px 0;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="font-size:12px;color:var(--text);">${metric}</div>
+            <div style="font-size:11px;font-weight:700;color:var(--${dir==='green'?'green':'red'});">${pct}</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-dim);">
+            <span>Target: <span style="color:var(--text-muted);">${target}</span></span>
+            <span>Actual: <span style="font-family:'DM Mono',monospace;color:var(--${dir==='green'?'green':'red'});">${actual}</span></span>
+          </div>
+        </div>`).join('')}
+    </div>`,
+  'sop-library': `
+    <div style="padding:18px 20px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:14px;">SOP Library</div>
+      ${[
+        ['🍽','F&B Opening Procedures','All outlets · v3.2','Updated Mar 2026'],
+        ['🎰','Gaming Floor Emergency','Security & Gaming · v2.1','Updated Feb 2026'],
+        ['🛡','ILGC Compliance Manual','Regulatory · v4.0','Updated Jan 2026'],
+        ['💳','VIP Comp Authorization','Marketing · v2.8','Updated Mar 2026'],
+        ['🔥','Fire & Evacuation Plan','Facilities · v1.9','Updated Jan 2026'],
+        ['💰','Cash Handling Protocol','Finance · v3.1','Updated Mar 2026'],
+        ['🍺','Responsible Service Alcohol','F&B · v2.4','Updated Feb 2026'],
+        ['👤','HR Disciplinary Process','HR · v2.6','Updated Dec 2025'],
+        ['📦','Inventory Audit Protocol','Operations · v1.7','Updated Mar 2026'],
+        ['🚨','AML Transaction Reporting','Compliance · v3.3','Updated Feb 2026'],
+      ].map(([icon,title,dept,date])=>`
+        <div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--gold-bg);border:1px solid rgba(184,134,11,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">${icon}</div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:600;color:var(--text);">${title}</div>
+            <div style="font-size:10px;color:var(--text-dim);">${dept} · ${date}</div>
+          </div>
+          <div style="font-size:10px;color:var(--gold);">→</div>
+        </div>`).join('')}
+    </div>`,
+};
+
+const sidebarConfig = {
+  dashboard: [
+    { label: 'Overview', items: [
+      { icon: '◈', text: 'Command Center', active: true, panel: null },
+      { icon: '📊', text: 'KPI Summary', panel: 'kpi-summary' },
+      { icon: '🔔', text: 'Alert Feed', badge: '5', panel: 'alert-feed' },
+    ]},
+    { label: 'Quick Links', items: [
+      { icon: '📅', text: 'Master Schedule', panel: 'master-schedule' },
+      { icon: '🎯', text: 'Daily Targets', panel: 'daily-targets' },
+      { icon: '📋', text: 'SOP Library', panel: 'sop-library' },
+    ]},
+  ],
+  operations: [
+    { label: 'F&B', items: [
+      { icon: '🍽', text: 'Outlet Overview', active: true, panel: null },
+      { icon: '📅', text: 'Reservations (OpenTable)', panel: null },
+      { icon: '📦', text: 'Inventory (Yellow Dog)', panel: null },
+      { icon: '📊', text: 'Menu Mix Analysis', panel: null },
+    ]},
+    { label: 'Outlets', items: [
+      { icon: '🥩', text: "Stack'd Steakhouse", panel: null },
+      { icon: '🍺', text: 'The Pit Bar & Grill', panel: null },
+      { icon: '💎', text: 'High Roller Lounge', panel: null },
+      { icon: '🍽', text: 'Marketplace Buffet', panel: null },
+      { icon: '☕', text: 'Casino Café', panel: null },
+    ]},
+  ],
+  gaming: [
+    { label: 'Gaming Floor', items: [
+      { icon: '🎰', text: 'Zone Overview', active: true, panel: null },
+      { icon: '📊', text: 'Everi Live Feed', panel: null },
+      { icon: '💳', text: 'VIP Comp Ledger', panel: null },
+      { icon: '🔧', text: 'Maintenance Log', badge: '2', badgeClass: 'gold', panel: null },
+    ]},
+    { label: 'By Game Type', items: [
+      { icon: '🎰', text: 'Slot Performance', panel: null },
+      { icon: '♠', text: 'Table Games', panel: null },
+      { icon: '🃏', text: 'Poker Room', panel: null },
+      { icon: '💰', text: 'High Limit Room', panel: null },
+    ]},
+  ],
+  people: [
+    { label: 'Workforce', items: [
+      { icon: '👥', text: 'Dept Overview', active: true, panel: null },
+      { icon: '📆', text: 'Kronos Scheduling', panel: null },
+      { icon: '📋', text: 'PTO Tracker', panel: null },
+      { icon: '⚠️', text: 'Schedule Gaps', badge: '3', panel: null },
+    ]},
+    { label: 'HR', items: [
+      { icon: '📝', text: 'Open Positions', panel: null },
+      { icon: '🏆', text: 'Training Dashboard', panel: null },
+      { icon: '📊', text: 'Labor Analytics', panel: null },
+      { icon: '🗂', text: 'Incident Reports', panel: null },
+    ]},
+  ],
+  finance: [
+    { label: 'Financial', items: [
+      { icon: '💰', text: 'P&L Dashboard', active: true, panel: null },
+      { icon: '📊', text: 'Power BI Reports', panel: null },
+      { icon: '🏦', text: 'Cage & Cash Mgmt', panel: null },
+      { icon: '📈', text: 'Revenue Trends', panel: null },
+    ]},
+    { label: 'Reporting', items: [
+      { icon: '📁', text: 'Monthly P&L', panel: null },
+      { icon: '📋', text: 'Budget vs Actual', panel: null },
+      { icon: '🔮', text: 'Forecasting', panel: null },
+      { icon: '📤', text: 'Export Reports', panel: null },
+    ]},
+  ],
+  compliance: [
+    { label: 'Regulatory', items: [
+      { icon: '🛡', text: 'ILGC Standards', active: true, panel: null },
+      { icon: '🔍', text: 'AML / KYC Monitor', panel: null },
+      { icon: '📋', text: 'Audit Log', panel: null },
+      { icon: '🚩', text: 'AML Flags', badge: '1', badgeClass: 'gold', panel: null },
+    ]},
+    { label: 'Food & Liquor', items: [
+      { icon: '🍽', text: 'Food Safety Logs', panel: null },
+      { icon: '🍷', text: 'Liquor Compliance', panel: null },
+      { icon: '📁', text: 'Inspection Reports', panel: null },
+    ]},
+  ],
+  events: [
+    { label: 'Events', items: [
+      { icon: '🎭', text: 'Upcoming Events', active: true, panel: null },
+      { icon: '✅', text: 'Event Checklists', panel: null },
+      { icon: '💼', text: 'Private Pipeline', panel: null },
+    ]},
+    { label: 'Planning', items: [
+      { icon: '📅', text: 'Events Calendar', panel: null },
+      { icon: '🗓', text: 'Ops Timelines', panel: null },
+      { icon: '📊', text: 'Event Revenue', panel: null },
+    ]},
+  ],
+};
+
+// Chart mode toggle
+function setChartMode(mode) {
+  const goldArea = document.getElementById('goldArea');
+  const blueArea = document.getElementById('blueArea');
+  const purpleArea = document.getElementById('purpleArea');
+  const barGroup = document.getElementById('barGroup');
+  const goldLine = document.getElementById('goldLine');
+  const blueLine = document.getElementById('blueLine');
+  const purpleLine = document.getElementById('purpleLine');
+
+  // Reset all buttons
+  document.querySelectorAll('.chart-mode-btn').forEach(b => {
+    b.style.background = 'var(--surface2)';
+    b.style.color = 'var(--text-muted)';
+  });
+  const activeBtn = document.getElementById('btn-' + mode);
+  if (activeBtn) { activeBtn.style.background = 'var(--gold)'; activeBtn.style.color = 'white'; }
+
+  if (mode === 'line') {
+    if (goldArea) goldArea.setAttribute('opacity','0');
+    if (blueArea) blueArea.setAttribute('opacity','0');
+    if (purpleArea) purpleArea.setAttribute('opacity','0');
+    if (barGroup) barGroup.setAttribute('opacity','0');
+    if (goldLine) goldLine.setAttribute('opacity','1');
+    if (blueLine) blueLine.setAttribute('opacity','1');
+    if (purpleLine) purpleLine.setAttribute('opacity','1');
+  } else if (mode === 'area') {
+    if (goldArea) goldArea.setAttribute('opacity','1');
+    if (blueArea) blueArea.setAttribute('opacity','1');
+    if (purpleArea) purpleArea.setAttribute('opacity','1');
+    if (barGroup) barGroup.setAttribute('opacity','0');
+    if (goldLine) goldLine.setAttribute('opacity','1');
+    if (blueLine) blueLine.setAttribute('opacity','1');
+    if (purpleLine) purpleLine.setAttribute('opacity','1');
+  } else if (mode === 'bar') {
+    if (goldArea) goldArea.setAttribute('opacity','0');
+    if (blueArea) blueArea.setAttribute('opacity','0');
+    if (purpleArea) purpleArea.setAttribute('opacity','0');
+    if (barGroup) barGroup.setAttribute('opacity','1');
+    if (goldLine) goldLine.setAttribute('opacity','0');
+    if (blueLine) blueLine.setAttribute('opacity','0');
+    if (purpleLine) purpleLine.setAttribute('opacity','0');
+  }
+}
+
+// ── PANEL STATE ──
+let currentPanelKey = null;
+
+function ensurePanel() {
+  if (document.getElementById('sidePanel')) return;
+
+  // Overlay covers only the main area (not the sidebar itself)
+  const overlay = document.createElement('div');
+  overlay.id = 'panelOverlay';
+  overlay.style.cssText = 'position:fixed;top:58px;left:540px;right:0;bottom:0;background:rgba(28,24,19,.18);z-index:298;display:none;';
+  overlay.onclick = closePanel;
+  document.body.appendChild(overlay);
+
+  // Panel — fades in/out, no translateX so sidebar is never blocked
+  const panel = document.createElement('div');
+  panel.id = 'sidePanel';
+  panel.style.cssText = [
+    'position:fixed',
+    'top:58px',
+    'left:220px',
+    'width:320px',
+    'height:calc(100vh - 58px)',
+    'background:var(--surface)',
+    'border-right:1px solid var(--border)',
+    'box-shadow:4px 0 24px rgba(0,0,0,.11)',
+    'z-index:299',
+    'overflow-y:auto',
+    'display:none',
+    'opacity:0',
+    'transition:opacity .2s ease',
+  ].join(';');
+  document.body.appendChild(panel);
+}
+
+function openPanel(panelKey) {
+  ensurePanel();
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('panelOverlay');
+
+  // Build content with a close button at the top
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 12px;border-bottom:1px solid var(--border);background:var(--surface2);position:sticky;top:0;z-index:10;">
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);font-weight:700;">Panel</div>
+      <button onclick="closePanel()" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted);line-height:1;" title="Close">✕</button>
+    </div>
+    ${sidebarPanels[panelKey] || '<div style="padding:20px;color:var(--text-muted);">No content</div>'}
+  `;
+
+  overlay.style.display = 'block';
+  panel.style.display = 'block';
+  panel.style.opacity = '0';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    panel.style.opacity = '1';
+  }));
+  currentPanelKey = panelKey;
+}
+
+function closePanel() {
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  if (!panel) return;
+
+  panel.style.opacity = '0';
+  if (overlay) overlay.style.display = 'none';
+  setTimeout(() => { panel.style.display = 'none'; }, 220);
+  currentPanelKey = null;
+
+  // Remove active state from panel items; restore home item
+  document.querySelectorAll('.sidebar-item[data-panel]').forEach(i => {
+    if (i.dataset.panel) i.classList.remove('active');
+  });
+  const homeItem = document.querySelector('.sidebar-item[data-is-home="1"]');
+  if (homeItem) homeItem.classList.add('active');
+}
+
+function renderSidebar(tab) {
+  // Instantly hide any open panel when switching tabs
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  if (panel) { panel.style.opacity = '0'; panel.style.display = 'none'; }
+  if (overlay) { overlay.style.display = 'none'; }
+  currentPanelKey = null;
+
+  const sidebar = document.getElementById('sidebar');
+  const sections = sidebarConfig[tab] || [];
+  sidebar.innerHTML = sections.map(sec => `
+    <div class="sidebar-section">
+      <div class="sidebar-label">${sec.label}</div>
+      ${sec.items.map(item => `
+        <div class="sidebar-item${item.active ? ' active' : ''}"
+             data-panel="${item.panel || ''}"
+             ${item.active ? 'data-is-home="1"' : ''}
+             onclick="handleSidebarClick(this,'${item.panel || ''}')">
+          <span>${item.icon}</span> ${item.text}
+          ${item.badge ? `<span class="sidebar-badge${item.badgeClass ? ' ' + item.badgeClass : ''}">${item.badge}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function handleSidebarClick(el, panelKey) {
+  // Toggle: if this panel is already open, close it
+  if (panelKey && currentPanelKey === panelKey) {
+    closePanel();
+    return;
+  }
+
+  // Update active state
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+
+  if (panelKey && sidebarPanels[panelKey]) {
+    openPanel(panelKey);
+  } else {
+    // No panel — just highlight and close any open panel
+    closePanel();
+    el.classList.add('active');
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.top-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.querySelectorAll('.page-section').forEach(s => {
+    s.classList.toggle('active', s.id === 'sec-' + tab);
+  });
+  renderSidebar(tab);
+  document.querySelector('.main').scrollTop = 0;
+}
+
+document.getElementById('topNav').addEventListener('click', e => {
+  const tab = e.target.dataset.tab;
+  if (tab) switchTab(tab);
+});
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hh = h % 12 || 12;
+  const mm = String(m).padStart(2, '0');
+  const ss = String(s).padStart(2, '0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss} ${ampm}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function toggleCheck(item) {
+  const box = item.querySelector('.check-box');
+  const label = item.querySelector('.check-label');
+  const checked = !box.classList.contains('checked');
+  box.classList.toggle('checked', checked);
+  box.textContent = checked ? '✓' : '';
+  label.classList.toggle('checked', checked);
+}
+
+renderSidebar('dashboard');
+</script>
+</body>
+</html>
